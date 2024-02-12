@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your News App - Favorites</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <!-- Font Awesome CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Your custom stylesheet -->
+    <link rel="stylesheet" href="css/style1.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+      <div class="container">
+        <a href="index.html" class="navbar-brand">Quick News</a>
+        <div class="user-details">
+          <span id="welcome-message"></span>
+          <span id="user-email"></span>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mt-3">
+      <h1>Your Favorite News</h1>
+      <div class="row" id="favorites-container"></div>
+    </main>
+
+    <!-- Bootstrap JS and Popper.js (required for Bootstrap 5) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <!-- Firebase JS SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js"></script>
+
+    <!-- Your Firebase initialization script here -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        remove,
+      } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js";
+
+      // Initialize Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyDggUgkf6Z31HfBcA3q2tkJ_lnvJL3GQLs",
+        authDomain: "todo-list-4dff9.firebaseapp.com",
+        authDomain: "todo-list-4dff9.firebaseapp.com",
+        databaseURL: "https://todo-list-4dff9-default-rtdb.firebaseio.com",
+        projectId: "todo-list-4dff9",
+        storageBucket: "todo-list-4dff9.appspot.com",
+        messagingSenderId: "582460921344",
+        appId: "1:582460921344:web:0604443e0deed9eee66ae5",
+        measurementId: "G-NM9VQ4D4LF",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const auth = getAuth(app);
+      let userId; // Declare userId globally
+
+      function displayUserDetails() {
+        userId = JSON.parse(sessionStorage.getItem("user-creds")).uid; // Ensure user ID is retrieved correctly
+        const userCreds = JSON.parse(sessionStorage.getItem("user-creds"));
+
+        const welcomeMessage = document.getElementById("welcome-message");
+        const userEmail = document.getElementById("user-email");
+        const favoritesContainer = document.getElementById(
+          "favorites-container"
+        );
+        const bookmarksRef = ref(db, "userFavorites/" + userId);
+
+        // Get user email
+        const userRef = ref(db, `users/${userId}/email`);
+        if (userCreds) {
+          // Update username and email elements with user credentials
+          welcomeMessage.innerHTML = "<strong>Welcome Back,</strong>";
+          userEmail.textContent = userCreds.email;
+        }
+
+        get(bookmarksRef)
+          .then((snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+              const key = childSnapshot.key; // Get the key of the favorite news item
+              const newsData = childSnapshot.val();
+
+              // Create card element
+              const newsCard = document.createElement("div");
+              newsCard.classList.add("col-md-4");
+              newsCard.innerHTML = `
+              <div class="card mb-4">
+                <img src="${newsData.imageURL}" class="card-img-top" alt="${newsData.title}">
+                <div class="card-body">
+                  <h5 class="card-title">${newsData.title}</h5>
+                  <p class="card-text">${newsData.description}</p>
+                 <button class="btn btn-danger mt-2 remove-btn" data-key="${key}" id="remove">Remove</button>
+                </div>
+              </div>
+            `;
+
+              favoritesContainer.appendChild(newsCard);
+            });
+          })
+          .catch((error) => {
+            console.error("Error retrieving bookmarks:", error.message);
+          });
+      }
+
+      function removeFromFavorites(key) {
+        // Check if user is authenticated
+        if (auth.currentUser) {
+          // Get the user's UID
+          const userUID = auth.currentUser.uid;
+
+          // Get a reference to the user's favorites node in the database
+          const userFavoritesRef = ref(db, `userFavorites/${userUID}/${key}`);
+
+          // Remove the news from favorites in the database
+          remove(userFavoritesRef)
+            .then(() => {
+              alert("News removed from favorites!");
+              window.location.reload();
+            })
+            .catch((error) => {
+              console.error("Error removing from favorites:", error.message);
+            });
+        } else {
+          console.error("User is not authenticated.");
+          // Handle the case where the user is not authenticated, e.g., display an error message or redirect to login page
+        }
+      }
+
+      window.onload = displayUserDetails;
+
+      // Add event listener to dynamically added remove buttons
+      document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-btn")) {
+          const key = event.target.dataset.key;
+          removeFromFavorites(key);
+        }
+      });
+    </script>
+    <script src="js/news.js"></script>
+  </body>
+</html>

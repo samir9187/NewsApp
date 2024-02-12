@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>News App</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/signup.css">
+
+    <!-- Your custom stylesheet -->
+    <link rel="stylesheet" href=" css/style1.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+      <div class="container">
+        <a href="#" onclick="reload()" class="navbar-brand">NewsWire</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link " href="#" onclick="onNavItemClick('Sports')" id="Sports"
+                >Sports</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="#" onclick="onNavItemClick('Finance')" id="Finance"
+                >Finance</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="onNavItemClick('Politics')" id="Politics"
+                >Politics</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="#" onclick="onNavItemClick('Science')" id="Science"
+                >Science</a
+              >
+            </li>
+            <li class="nav-item" >
+              <a
+                class="nav-link "
+                href="#"
+                onclick="onNavItemClick('Entertainment')"
+                id="Entertainment"
+                >Entertainment</a
+              >
+            </li>
+          </ul>
+          <form class="d-flex ms-auto" role="search">
+            <input
+              id="search-text"
+              class="form-control me-2 news-input"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button
+              class="btn btn-outline-success search-button"
+              id="search-button"
+              type="submit"
+            >
+              Search
+            </button>
+          </form>
+         <button type="button" class="btn btn-success mx-4" onclick=" openLoginPage()  " id="loginBtn" >Login </button>
+         <button type="button" class="btn btn-success mx-4" onclick="openSignUp()"  id="signupBtn">SignUp</button>
+         <a href="favourite.html" id="admin"><i class="fas fa-user-circle fa-xl mx-2" style="color: #198754;"></i></a>
+<!-- <button class="btn btn-danger mx-2" id="logoutBtn"  onclick="LogoutUser()" >Logout</button> -->
+<button class="btn btn-danger mx-2" id="logoutBtn" style="display: none;"  onclick="LogoutUser()">Logout</button>
+
+
+
+    </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mt-3">
+      <h1 id="category-title">Top-Headlines</h1>
+      <div class="row" id="cards-container"></div>
+    </main>
+
+    <template id="template-news-card">
+      <div class="col-md-4">
+        <div class="card">
+          <img
+            src="https://via.placeholder.com/400x200"
+            class="card-img-top"
+            alt="news-image"
+            id="news-img"
+          />
+          <div class="card-body">
+            <h3 class="card-title" id="news-title">This is the Title</h3>
+            <h6 class="card-subtitle mb-2 text-muted" id="news-source">
+              End Gadget 26/08/2023
+            </h6>
+            <p class="card-text" id="news-desc">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+              Recusandae saepe quis voluptatum quisquam vitae doloremque facilis
+              molestias quae ratione cumque!
+            </p>
+            <!-- <a href="#" class="btn btn-primary" id="news-link">Check News</a> -->
+            <a href="#" ><button class="btn btn-primary" id="news-link">Check News</button> </a>
+
+<!-- <i class="fa-regular fa-bookmark fa-xl" style="color:#198754;" id="addToFavourite"></i> -->
+<!-- <i class="fa-regular fa-bookmark fa-xl" style="color:#198754;" id="addToFavourite" onclick="addToFavorites(this)" -->
+<i class="fa-regular fa-bookmark fa-xl bookmark-icon" style="color:#198754; float: right; padding:18px 0px;" id="addToFavourite" onclick="toggleBookmark(this)"></i>
+
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Bootstrap JS and Popper.js (required for Bootstrap 5) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
+ <script>
+
+      function openSignUp() {
+        window.location.href = "signup.html";
+      }
+
+   </script>
+     <!-- <script>
+      let userCreds = JSON.parse(sessionStorage.getItem("user-creds"));
+      let userInfo = JSON.parse(sessionStorage.getItem("user-info"));
+     </script> -->
+     <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-analytics.js";
+
+
+ const firebaseConfig = {
+  apiKey: "AIzaSyDggUgkf6Z31HfBcA3q2tkJ_lnvJL3GQLs",
+  authDomain: "todo-list-4dff9.firebaseapp.com",
+  databaseURL: "https://todo-list-4dff9-default-rtdb.firebaseio.com",
+  projectId: "todo-list-4dff9",
+  storageBucket: "todo-list-4dff9.appspot.com",
+  messagingSenderId: "582460921344",
+  appId: "1:582460921344:web:0604443e0deed9eee66ae5",
+  measurementId: "G-NM9VQ4D4LF"
+};
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+
+  // const analytics = getAnalytics(app);
+</script>
+  <script>
+      function
+       openLoginPage() {
+        window.location.href = "login.html";
+      }
+
+     function toggleBookmark(element) {
+      // Toggle between regular and solid bookmark icon classes
+      if (element.classList.contains("fa-regular")) {
+        // Remove regular class and add solid class
+        element.classList.remove("fa-regular");
+        element.classList.add("fa-solid");
+
+      } else {
+        // Remove solid class and add regular class
+        element.classList.remove("fa-solid");
+        element.classList.add("fa-regular");
+
+      }
+    }
+    </script>
+
+     <script src="script.js" ></script>
+  <script  src="js/login.js" type="module"></script>
+<script src="js/signup.js" type="module"></script>
+<script src="js/news.js" type="module"></script>
+
+
+
+  </body>
+</html>
